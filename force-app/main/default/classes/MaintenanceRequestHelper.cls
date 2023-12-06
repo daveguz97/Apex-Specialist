@@ -72,28 +72,34 @@ public with sharing class MaintenanceRequestHelper {
                 newCases.add(newMR);
             }
 			if (!newCases.isEmpty()) {
+				cloneEquipmentItems(newCases, closedCases);
 				insert newCases;
 
-				List<Equipment_Maintenance_Item__c> clonedWPs = new List<Equipment_Maintenance_Item__c>();
-	
-				for (Case nc : newCases){
-	 
-					 for (Equipment_Maintenance_Item__c wp : closedCases.get(nc.ParentId).Equipment_Maintenance_Items__r){
-	 
-						 Equipment_Maintenance_Item__c wpClone = wp.clone();
-	 
-						 wpClone.Maintenance_Request__c = nc.Id;
-	 
-						 ClonedWPs.add(wpClone);
-	 
-					 }
-	 
-				 }
-	 
-				 insert ClonedWPs;
+
 			}
 
         }
 
     }
+
+	private static void cloneEquipmentItems(Case[] updatedCases, Map<Id,Case> caseMap) {
+		List<Equipment_Maintenance_Item__c> clonedWPs = new List<Equipment_Maintenance_Item__c>();
+	
+		for (Case nc : updatedCases){
+
+			 for (Equipment_Maintenance_Item__c wp : caseMap.get(nc.ParentId).Equipment_Maintenance_Items__r){
+
+				 Equipment_Maintenance_Item__c wpClone = wp.clone();
+
+				 wpClone.Maintenance_Request__c = nc.Id;
+
+				 ClonedWPs.add(wpClone);
+
+			 }
+
+		 }
+		 if(!clonedWPs.isEmpty()) {
+			 insert ClonedWPs;
+		 }
+	}
 }
