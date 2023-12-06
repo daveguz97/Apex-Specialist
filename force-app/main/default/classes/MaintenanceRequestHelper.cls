@@ -62,44 +62,44 @@ public with sharing class MaintenanceRequestHelper {
                     ProductId = c.ProductId,
                     Type = 'Routine Maintenance',
                     Subject = c.Subject,
-                    Date_Reported__c = Date.today(),
-                    Date_Due__c = maintenanceCycles.containsKey(c.Id)
-                        ? Date.today()
-                              .addDays((Integer) maintenanceCycles.get(c.Id))
-                        : Date.today()
-                              .addDays((Integer) c.Product.maintenance_Cycle__c)
+                    Date_Reported__c = Date.today()
                 );
+
+				if(maintenanceCycles.containsKey(c.Id)) {
+					c.Date_Due__c = Date.today()
+					.addDays((Integer) maintenanceCycles.get(c.Id));
+				}
+				else if(c.Product.maintenance_Cycle__c != null) {
+					c.Date_Due__c = Date.today()
+					.addDays((Integer) c.Product.maintenance_Cycle__c);
+				}
+
                 newCases.add(newMR);
             }
 			if (!newCases.isEmpty()) {
-				cloneEquipmentItems(newCases, closedCases);
 				insert newCases;
 
-
+				List<Equipment_Maintenance_Item__c> clonedWPs = new List<Equipment_Maintenance_Item__c>();
+	
+				for (Case nc : newCases){
+	 
+					 for (Equipment_Maintenance_Item__c wp : closedCases.get(nc.ParentId).Equipment_Maintenance_Items__r){
+	 
+						 Equipment_Maintenance_Item__c wpClone = wp.clone();
+	 
+						 wpClone.Maintenance_Request__c = nc.Id;
+	 
+						 ClonedWPs.add(wpClone);
+	 
+					 }
+	 
+				 }
+				 if(!clonedWPs.isEmpty()) {
+					 insert ClonedWPs;
+				 }
 			}
 
         }
 
     }
-
-	private static void cloneEquipmentItems(Case[] updatedCases, Map<Id,Case> caseMap) {
-		List<Equipment_Maintenance_Item__c> clonedWPs = new List<Equipment_Maintenance_Item__c>();
-	
-		for (Case nc : updatedCases){
-
-			 for (Equipment_Maintenance_Item__c wp : caseMap.get(nc.ParentId).Equipment_Maintenance_Items__r){
-
-				 Equipment_Maintenance_Item__c wpClone = wp.clone();
-
-				 wpClone.Maintenance_Request__c = nc.Id;
-
-				 ClonedWPs.add(wpClone);
-
-			 }
-
-		 }
-		 if(!clonedWPs.isEmpty()) {
-			 insert ClonedWPs;
-		 }
-	}
 }
