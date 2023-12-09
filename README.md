@@ -1,18 +1,16 @@
-# Salesforce DX Project: Next Steps
+# Apex Specialist Superbadge
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+This superbadge demonstated my ability with Apex classes and Triggers.
 
-## How Do You Plan to Deploy Your Changes?
+## Object Relationships
+![Object Relationships](image.png)
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
 
-## Configure Your Salesforce DX Project
+## Automation with Apex Trigger
+* When a Case record gets updated with the status being 'closed' and the type being 'Routine Maintenance' or 'Repair', a new case gets inserted with the Vehicle Custom Object, and the Equipment (Product) Standard Object tied to the new case via Lookup Relationship. Equipment Maintenance Items also get inserted with attachted new Case via a custom field called 'Maintenance Request'. The Trigger also handles bulkification to avoid governor Limits.
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+## Synchronise Warehouse Inventory and Scheduling
+* I implemented a Queueable that performs an HTTP Callout to upsert new Equipment Records and it gets called by a Scheduleable Class that runs daily at 1 AM during Off Work Hours
 
-## Read All About It
-
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+## Test Classes
+* Each Class I implemented is fully tested and has Asserts that checks for each outcome.
