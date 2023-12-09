@@ -1,5 +1,7 @@
-public with sharing class WarehouseCalloutService implements Queueable {
+public with sharing class WarehouseCalloutService implements Queueable, Database.AllowsCallouts {
+
     public void execute(QueueableContext context) {
+		Product2[] newEquipments = new Product2[]{};
 		Http http = new Http();
 		HttpRequest req = new HttpRequest();
 		req.setMethod('GET');
@@ -8,10 +10,31 @@ public with sharing class WarehouseCalloutService implements Queueable {
 		HttpResponse res = http.send(req);
 
 		if(res.getStatusCode() == 200) {
-			Map<String, Object> results = (Map<String,Object>) JSON.deserializeUntyped(res.getBody());
+			List<Object> calloutEquipments = (List<Object>) JSON.deserializeUntyped(res.getBody());
+            for(Object calloutEquipment: calloutEquipments) {
+                Map<String, Object> data = (Map<String,Object>) calloutEquipment;
+            	Product2 equipment = new Product2(
+					Replacement_Part__c = (Boolean) data.get('replacement'),
+					Cost__c = (Decimal) data.get('cost'),
+					Current_Inventory__c = (Decimal) data.get('quantity'),
+					Lifespan_Months__c = (Double) data.get('lifespan'),
+					Maintenance_Cycle__c = (Double) data.get('maintenanceperiod'),
+					Warehouse_SKU__c = (String) data.get('sku'),
+					Name = (String) data.get('name')
+				);
+				newEquipments.add(equipment);
+            }
 
-			System.debug(res.getBody());
+			if(!newEquipments.isEmpty()) {
+				upsert newEquipments;
+
+				for(Product2 equipment : newEquipments) {
+					System.debug('Equipment: ' + equipment);
+					System.debug('Equipment External Id: ' + equipment.ExternalId);
+				}
+			}
 		}
+
 
 	}
 }
